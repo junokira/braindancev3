@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Processing - BD Replay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="processing">
+  <header>
+    <a href="index.html">BD Replay</a>
+    <a href="capture.html">Capture</a>
+    <a href="upload.html">Upload</a>
+    <a href="library.html">Library</a>
+    <a href="settings.html">Settings</a>
+  </header>
+  <main class="panel">
+    <h1>Processing Replay</h1>
+    <p id="status-text">Preparing...</p>
+    <div style="background:#1f1f1f;height:12px;border-radius:6px;overflow:hidden;margin-top:1rem;">
+      <div id="progress-bar" style="background:#3b82f6;width:0%;height:100%;transition:width 0.2s;"></div>
+    </div>
+    <a id="explore-btn" class="button" hidden style="margin-top:1rem;display:inline-block;">Explore Replay</a>
+  </main>
+  <script type="module" src="script.js"></script>
+</body>
+</html>
