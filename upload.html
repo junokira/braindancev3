@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload - BD Replay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="upload">
+  <header>
+    <a href="index.html">BD Replay</a>
+    <a href="capture.html">Capture</a>
+    <a href="upload.html">Upload</a>
+    <a href="library.html">Library</a>
+    <a href="settings.html">Settings</a>
+  </header>
+  <main class="panel">
+    <h1>Upload Media</h1>
+    <div id="drop-zone" style="border:2px dashed #374151;padding:2rem;text-align:center;cursor:pointer;">
+      <p>Drag and drop a video or image file here, or select one below.</p>
+      <input type="file" id="file-input" accept="video/*,image/*" style="margin-top:1rem;" />
+      <button id="upload-btn" class="button" style="margin-top:1rem;">Create Replay</button>
+    </div>
+  </main>
+  <script type="module" src="script.js"></script>
+</body>
+</html>

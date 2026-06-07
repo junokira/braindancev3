@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Replay Viewer - BD Replay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="replay">
+  <header>
+    <a href="index.html">BD Replay</a>
+    <a href="capture.html">Capture</a>
+    <a href="upload.html">Upload</a>
+    <a href="library.html">Library</a>
+    <a href="settings.html">Settings</a>
+  </header>
+  <main class="panel">
+    <h1>Replay Viewer</h1>
+    <div id="viewport" style="width:100%;height:60vh;"></div>
+    <div style="margin-top:1rem;display:flex;align-items:center;gap:1rem;">
+      <button id="play-btn" class="button">Play</button>
+      <button id="mute-btn" class="button">Mute</button>
+      <input type="range" id="timeline" min="0" max="100" value="0" style="flex:1;" />
+    </div>
+    <div id="telemetry" style="font-size:0.8rem;margin-top:0.5rem;"></div>
+    <p id="error-text" style="color:#f87171;"></p>
+  </main>
+  <script type="module" src="replay-viewer.js"></script>
+</body>
+</html>

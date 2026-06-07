@@ -1,0 +1,2644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>BRAINDANCE // BD-OS v2.077</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ============================================================
+   BD-OS DESIGN SYSTEM — NIGHT CITY NEURAL INTERFACE
+   ============================================================ */
+:root {
+  --bd-black:    #000000;
+  --bd-void:     #030508;
+  --bd-panel:    #070d14;
+  --bd-surface:  #0c1520;
+  --bd-border:   #0f2035;
+  --bd-cyan:     #00f5ff;
+  --bd-cyan-dim: #007a85;
+  --bd-yellow:   #ffe600;
+  --bd-red:      #ff2a2a;
+  --bd-green:    #00ff88;
+  --bd-purple:   #c800ff;
+  --bd-text:     #c8d8e8;
+  --bd-text-dim: #4a6070;
+  --bd-scan:     rgba(0,245,255,0.03);
+  --font-mono:   'Share Tech Mono', monospace;
+  --font-hud:    'Orbitron', monospace;
+  --font-body:   'Rajdhani', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--bd-void);
+  color: var(--bd-text);
+  font-family: var(--font-body);
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* ── SCANLINE OVERLAY ─────────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 9999;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.18) 2px,
+    rgba(0,0,0,0.18) 4px
+  );
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 9998;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%);
+}
+
+/* ── PHONE SHELL ──────────────────────────────────────────── */
+#phone-shell {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(390px, 100vw);
+  height: min(844px, 100vh);
+  background: #000;
+  border-radius: clamp(0px, 2vw, 44px);
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px #0f2035,
+    0 0 60px rgba(0,245,255,0.12),
+    0 0 120px rgba(0,245,255,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── STATUS BAR ───────────────────────────────────────────── */
+#status-bar {
+  height: 44px;
+  background: var(--bd-void);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--bd-border);
+  position: relative;
+}
+#status-bar::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 20%; right: 20%; height: 1px;
+  background: var(--bd-cyan);
+  opacity: 0.4;
+  filter: blur(1px);
+}
+.status-time {
+  font-family: var(--font-hud);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--bd-cyan);
+  letter-spacing: 0.1em;
+}
+.status-icons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.status-icons span {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--bd-cyan-dim);
+}
+.neural-id {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--bd-text-dim);
+  letter-spacing: 0.05em;
+}
+
+/* ── SCREEN AREA ──────────────────────────────────────────── */
+#screen {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  background: var(--bd-void);
+}
+
+/* ── VIEWS ────────────────────────────────────────────────── */
+.view {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: none;
+  flex-direction: column;
+  padding-bottom: 80px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+.view.active { display: flex; }
+.view::-webkit-scrollbar { display: none; }
+
+/* ── HOME VIEW ────────────────────────────────────────────── */
+#view-home {
+  background:
+    radial-gradient(circle at 70% 20%, rgba(0,245,255,0.06) 0%, transparent 50%),
+    radial-gradient(circle at 20% 80%, rgba(200,0,255,0.05) 0%, transparent 50%),
+    var(--bd-void);
+}
+
+.home-header {
+  padding: 28px 24px 16px;
+  position: relative;
+}
+.home-logo {
+  font-family: var(--font-hud);
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--bd-cyan);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  line-height: 1;
+  text-shadow: 0 0 20px rgba(0,245,255,0.6), 0 0 40px rgba(0,245,255,0.3);
+}
+.home-logo span {
+  color: var(--bd-yellow);
+  text-shadow: 0 0 20px rgba(255,230,0,0.6);
+}
+.home-subtitle {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--bd-text-dim);
+  letter-spacing: 0.2em;
+  margin-top: 4px;
+}
+.home-tagline {
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--bd-cyan-dim);
+  letter-spacing: 0.1em;
+}
+
+/* neural readout strip */
+.neural-strip {
+  margin: 0 24px 20px;
+  border: 1px solid var(--bd-border);
+  border-left: 3px solid var(--bd-cyan);
+  background: var(--bd-panel);
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.neural-strip-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--bd-text-dim);
+  letter-spacing: 0.15em;
+}
+.neural-strip-value {
+  font-family: var(--font-hud);
+  font-size: 13px;
+  color: var(--bd-green);
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 10px rgba(0,255,136,0.5);
+}
+.neural-strip-value.warn { color: var(--bd-yellow); text-shadow: 0 0 10px rgba(255,230,0,0.5); }
+.neural-strip-value.danger { color: var(--bd-red); text-shadow: 0 0 10px rgba(255,42,42,0.5); }
+
+/* quick action grid */
+.quick-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0 24px 20px;
+}
+.quick-card {
+  background: var(--bd-panel);
+  border: 1px solid var(--bd-border);
+  border-radius: 4px;
+  padding: 20px 16px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.15s, background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.quick-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: var(--card-accent, var(--bd-cyan));
+  opacity: 0.8;
+}
+.quick-card:active {
+  background: var(--bd-surface);
+  border-color: var(--card-accent, var(--bd-cyan));
+}
+.quick-card-icon {
+  font-size: 28px;
+  margin-bottom: 10px;
+  display: block;
+  filter: drop-shadow(0 0 6px currentColor);
+}
+.quick-card-title {
+  font-family: var(--font-hud);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--bd-text);
+  text-transform: uppercase;
+}
+.quick-card-sub {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--bd-text-dim);
+  margin-top: 4px;
+  letter-spacing: 0.08em;
+}
+
+/* replay count badge */
+.replay-count-badge {
+  position: absolute;
+  top: 10px; right: 10px;
+  font-family: var(--font-hud);
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--bd-cyan);
+  background: rgba(0,245,255,0.1);
+  border: 1px solid var(--bd-cyan);
+  border-radius: 2px;
+  padding: 1px 5px;
+  line-height: 1.4;
+}
+
+/* section header */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 24px 12px;
+}
+.section-header-line {
+  flex: 1;
+  height: 1px;
+  background: var(--bd-border);
+}
+.section-header-text {
+  font-family: var(--font-hud);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  color: var(--bd-cyan-dim);
+  text-transform: uppercase;
+}
+
+/* recent replays list */
+.recent-list {
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.recent-item {
+  background: var(--bd-panel);
+  border: 1px solid var(--bd-border);
+  border-radius: 3px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.recent-item:active { border-color: var(--bd-cyan); }
+.recent-thumb {
+  width: 48px; height: 36px;
+  object-fit: cover;
+  border-radius: 2px;
+  border: 1px solid var(--bd-border);
+  background: var(--bd-surface);
+  flex-shrink: 0;
+}
+.recent-thumb-placeholder {
+  width: 48px; height: 36px;
+  background: var(--bd-surface);
+  border: 1px solid var(--bd-border);
+  border-radius: 2px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+.recent-info { flex: 1; min-width: 0; }
+.recent-name {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bd-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.recent-meta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--bd-text-dim);
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+.recent-quality {
+  font-family: var(--font-hud);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.q-high { color: var(--bd-green); }
+.q-med  { color: var(--bd-yellow); }
+.q-low  { color: var(--bd-red); }
+
+/* ── UPLOAD VIEW ──────────────────────────────────────────── */
+#view-upload {
+  background: var(--bd-void);
+}
+.view-topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--bd-border);
+}
+.back-btn {
+  font-family: var(--font-hud);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--bd-cyan);
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  padding: 6px 10px;
+  border: 1px solid var(--bd-cyan);
+  border-radius: 2px;
+  background: rgba(0,245,255,0.05);
+  flex-shrink: 0;
+}
+.back-btn:active { background: rgba(0,245,255,0.15); }
+.view-title {
+  font-family: var(--font-hud);
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--bd-text);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* drop zone */
+.drop-zone {
+  margin: 24px;
+  border: 2px dashed var(--bd-border);
+  border-radius: 4px;
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--bd-panel);
+  position: relative;
+  overflow: hidden;
+}
+.drop-zone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(135deg, rgba(0,245,255,0.02) 25%, transparent 25%) -10px 0,
+    linear-gradient(225deg, rgba(0,245,255,0.02) 25%, transparent 25%) -10px 0,
+    linear-gradient(315deg, rgba(0,245,255,0.02) 25%, transparent 25%),
+    linear-gradient(45deg,  rgba(0,245,255,0.02) 25%, transparent 25%);
+  background-size: 20px 20px;
+  opacity: 0.5;
+}
+.drop-zone.over, .drop-zone:hover {
+  border-color: var(--bd-cyan);
+  background: rgba(0,245,255,0.04);
+}
+.drop-zone.over { animation: drop-pulse 0.5s ease infinite alternate; }
+@keyframes drop-pulse {
+  from { box-shadow: 0 0 10px rgba(0,245,255,0.2) inset; }
+  to   { box-shadow: 0 0 30px rgba(0,245,255,0.4) inset; }
+}
+.drop-icon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 0 10px rgba(0,245,255,0.5));
+}
+.drop-main {
+  font-family: var(--font-hud);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--bd-text);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.drop-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--bd-text-dim);
+  margin-top: 6px;
+  letter-spacing: 0.08em;
+}
+.drop-limit {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--bd-cyan-dim);
+  margin-top: 10px;
+  letter-spacing: 0.1em;
+}
+
+/* file preview card */
+.file-preview-card {
+  margin: 0 24px 20px;
+  background: var(--bd-panel);
+  border: 1px solid var(--bd-cyan);
+  border-radius: 4px;
+  padding: 16px;
+  display: none;
+  position: relative;
+  overflow: hidden;
+}
+.file-preview-card.show { display: block; }
+.file-preview-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 2px;
+  background: linear-gradient(90deg, var(--bd-cyan), transparent);
+}
+.fp-thumb-wrap {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.fp-thumb {
+  width: 72px; height: 54px;
+  object-fit: cover;
+  border-radius: 2px;
+  border: 1px solid var(--bd-border);
+  background: var(--bd-surface);
+  flex-shrink: 0;
+}
+.fp-meta { flex: 1; min-width: 0; }
+.fp-name {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--bd-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fp-detail {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--bd-text-dim);
+  margin-top: 4px;
+  letter-spacing: 0.06em;
+}
+.fp-detail span { color: var(--bd-cyan-dim); }
+
+/* warning banner */
+.warn-banner {
+  background: rgba(255,42,42,0.08);
+  border: 1px solid rgba(255,42,42,0.3);
+  border-left: 3px solid var(--bd-red);
+  border-radius: 2px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--bd-red);
+  letter-spacing: 0.08em;
+  display: none;
+}
+.warn-banner.show { display: block; }
+
+/* BD button */
+.bd-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  font-family: var(--font-hud);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-align: center;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.15s;
+}
+.bd-btn-primary {
+  background: var(--bd-cyan);
+  color: var(--bd-black);
+  box-shadow: 0 0 20px rgba(0,245,255,0.3), 0 0 60px rgba(0,245,255,0.1);
+}
+.bd-btn-primary:active {
+  background: #00c4cc;
+  box-shadow: 0 0 10px rgba(0,245,255,0.2);
+  transform: scale(0.98);
+}
+.bd-btn-primary:disabled {
+  background: var(--bd-border);
+  color: var(--bd-text-dim);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+.bd-btn-secondary {
+  background: transparent;
+  color: var(--bd-cyan);
+  border: 1px solid var(--bd-cyan);
+  box-shadow: 0 0 10px rgba(0,245,255,0.1);
+}
+.bd-btn-secondary:active { background: rgba(0,245,255,0.1); }
+.bd-btn-danger {
+  background: transparent;
+  color: var(--bd-red);
+  border: 1px solid var(--bd-red);
+}
+.bd-btn-danger:active { background: rgba(255,42,42,0.1); }
+
+/* spinner */
+.bd-btn .spin {
+  display: none;
+  width: 14px; height: 14px;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-top-color: var(--bd-black);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.bd-btn.loading .spin { display: inline-block; }
+.bd-btn.loading .btn-text { opacity: 0.7; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.upload-action-pad { padding: 0 24px; display: flex; flex-direction: column; gap: 10px; }
+
+/* ── CAPTURE VIEW ─────────────────────────────────────────── */
+#view-capture { background: #000; }
+.capture-preview-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9/16;
+  max-height: 55vh;
+  background: #000;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+#capture-preview {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* HUD overlays on camera */
+.cam-corner {
+  position: absolute;
+  width: 20px; height: 20px;
+  border-color: var(--bd-cyan);
+  border-style: solid;
+  opacity: 0.7;
+}
+.cam-corner.tl { top: 12px; left: 12px; border-width: 2px 0 0 2px; }
+.cam-corner.tr { top: 12px; right: 12px; border-width: 2px 2px 0 0; }
+.cam-corner.bl { bottom: 12px; left: 12px; border-width: 0 0 2px 2px; }
+.cam-corner.br { bottom: 12px; right: 12px; border-width: 0 2px 2px 0; }
+.cam-crosshair {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px; height: 20px;
+  opacity: 0.4;
+}
+.cam-crosshair::before, .cam-crosshair::after {
+  content: '';
+  position: absolute;
+  background: var(--bd-cyan);
+}
+.cam-crosshair::before { top: 50%; left: 0; right: 0; height: 1px; transform: translateY(-50%); }
+.cam-crosshair::after  { left: 50%; top: 0; bottom: 0; width: 1px; transform: translateX(-50%); }
+.cam-rec-indicator {
+  position: absolute;
+  top: 14px; right: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0,0,0,0.6);
+  padding: 4px 8px;
+  border-radius: 2px;
+  display: none;
+}
+.cam-rec-indicator.show { display: flex; }
+.rec-dot {
+  width: 8px; height: 8px;
+  background: var(--bd-red);
+  border-radius: 50%;
+  animation: rec-blink 1s ease infinite;
+  box-shadow: 0 0 8px var(--bd-red);
+}
+@keyframes rec-blink {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.rec-time {
+  font-family: var(--font-hud);
+  font-size: 11px;
+  color: #fff;
+  letter-spacing: 0.1em;
+}
+.cam-sensor-status {
+  position: absolute;
+  bottom: 12px; left: 12px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--bd-cyan-dim);
+  background: rgba(0,0,0,0.5);
+  padding: 3px 7px;
+  letter-spacing: 0.1em;
+}
+.capture-controls {
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.capture-note {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--bd-text-dim);
+  letter-spacing: 0.08em;
+  text-align: center;
+  padding: 0 24px;
+}
+
+/* ── LIBRARY VIEW ─────────────────────────────────────────── */
+#view-library { background: var(--bd-void); }
+.library-stats {
+  display: flex;
+  gap: 0;
+  margin: 16px 24px;
+  border: 1px solid var(--bd-border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.lib-stat {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  border-right: 1px solid var(--bd-border);
+  background: var(--bd-panel);
+}
+.lib-stat:last-child { border-right: none; }
+.lib-stat-value {
+  font-family: var(--font-hud);
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--bd-cyan);
+  line-height: 1;
+  text-shadow: 0 0 10px rgba(0,245,255,0.4);
+}
+.lib-stat-label {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--bd-text-dim);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+.library-list {
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.lib-card {
+  background: var(--bd-panel);
+  border: 1px solid var(--bd-border);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.lib-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 3px; height: 100%;
+  background: var(--bd-cyan);
+  opacity: 0.6;
+}
+.lib-card-inner {
+  display: flex;
+  gap: 12px;
+  padding: 12px 12px 12px 16px;
+  align-items: flex-start;
+}
+.lib-thumb {
+  width: 72px; height: 54px;
+  object-fit: cover;
+  border-radius: 2px;
+  border: 1px solid var(--bd-border);
+  background: var(--bd-surface);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.lib-thumb-ph {
+  width: 72px; height: 54px;
+  background: var(--bd-surface);
+  border: 1px solid var(--bd-border);
+  border-radius: 2px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+.lib-info { flex: 1; min-width: 0; }
+.lib-name {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--bd-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lib-name-input {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--bd-cyan);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--bd-cyan);
+  outline: none;
+  width: 100%;
+}
+.lib-meta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--bd-text-dim);
+  margin-top: 3px;
+  letter-spacing: 0.06em;
+}
+.lib-quality-bar {
+  height: 2px;
+  background: var(--bd-border);
+  border-radius: 1px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+.lib-quality-fill {
+  height: 100%;
+  background: var(--bd-cyan);
+  transition: width 0.3s;
+}
+.lib-actions {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px 10px 16px;
+  border-top: 1px solid var(--bd-border);
+}
+.lib-btn {
+  font-family: var(--font-hud);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  padding: 5px 10px;
+  border-radius: 2px;
+  cursor: pointer;
+  border: 1px solid;
+  background: transparent;
+  transition: all 0.1s;
+  text-transform: uppercase;
+}
+.lib-btn-open  { color: var(--bd-cyan);   border-color: var(--bd-cyan);   }
+.lib-btn-rename{ color: var(--bd-yellow); border-color: var(--bd-yellow); }
+.lib-btn-del   { color: var(--bd-red);    border-color: var(--bd-red);    }
+.lib-btn:active { opacity: 0.6; transform: scale(0.96); }
+.lib-empty {
+  padding: 60px 24px;
+  text-align: center;
+}
+.lib-empty-icon { font-size: 40px; margin-bottom: 16px; opacity: 0.4; }
+.lib-empty-text {
+  font-family: var(--font-hud);
+  font-size: 12px;
+  color: var(--bd-text-dim);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.lib-empty-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--bd-text-dim);
+  margin-top: 8px;
+}
+
+/* ── PROCESSING VIEW ──────────────────────────────────────── */
+#view-processing {
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at center, rgba(0,245,255,0.04) 0%, transparent 60%),
+    var(--bd-void);
+}
+.proc-panel {
+  width: calc(100% - 48px);
+  background: var(--bd-panel);
+  border: 1px solid var(--bd-border);
+  border-radius: 4px;
+  padding: 32px 24px;
+  position: relative;
+  overflow: hidden;
+}
+.proc-panel::before, .proc-panel::after {
+  content: '';
+  position: absolute;
+}
+.proc-panel::before {
+  top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--bd-cyan), transparent);
+  animation: proc-top-scan 2s linear infinite;
+}
+@keyframes proc-top-scan {
+  0%   { opacity: 0; transform: scaleX(0); transform-origin: left; }
+  50%  { opacity: 1; transform: scaleX(1); transform-origin: left; }
+  51%  { transform-origin: right; }
+  100% { opacity: 0; transform: scaleX(0); transform-origin: right; }
+}
+.proc-icon {
+  font-size: 48px;
+  text-align: center;
+  display: block;
+  margin-bottom: 20px;
+  animation: proc-pulse 1.5s ease infinite alternate;
+}
+@keyframes proc-pulse {
+  from { filter: drop-shadow(0 0 5px rgba(0,245,255,0.3)); opacity: 0.8; }
+  to   { filter: drop-shadow(0 0 20px rgba(0,245,255,0.8)); opacity: 1; }
+}
+.proc-title {
+  font-family: var(--font-hud);
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--bd-text);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 6px;
+}
+.proc-status {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--bd-cyan-dim);
+  text-align: center;
+  letter-spacing: 0.12em;
+  margin-bottom: 20px;
+  min-height: 16px;
+}
+.proc-bar-wrap {
+  height: 4px;
+  background: var(--bd-border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.proc-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--bd-cyan), var(--bd-purple));
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 8px rgba(0,245,255,0.5);
+}
+.proc-percent {
+  font-family: var(--font-hud);
+  font-size: 11px;
+  color: var(--bd-text-dim);
+  text-align: right;
+  letter-spacing: 0.1em;
+  margin-bottom: 24px;
+}
+.proc-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+.proc-step {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--bd-text-dim);
+  letter-spacing: 0.08em;
+  padding-left: 14px;
+  position: relative;
+}
+.proc-step::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: var(--bd-border);
+}
+.proc-step.done { color: var(--bd-green); }
+.proc-step.done::before { content: '✓'; color: var(--bd-green); }
+.proc-step.active { color: var(--bd-cyan); }
+.proc-step.active::before { content: '▸'; color: var(--bd-cyan); animation: blink 0.7s ease infinite alternate; }
+@keyframes blink { from { opacity: 0.3; } to { opacity: 1; } }
+
+/* ── REPLAY VIEWER ────────────────────────────────────────── */
+#view-replay { background: #000; padding-bottom: 0; }
+#replay-viewport {
+  width: 100%;
+  height: 55vh;
+  background: #000;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+#replay-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.replay-hud-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+/* corner brackets */
+.rhud-corner {
+  position: absolute;
+  width: 16px; height: 16px;
+  border-color: rgba(0,245,255,0.5);
+  border-style: solid;
+}
+.rhud-corner.tl { top: 8px; left: 8px; border-width: 1px 0 0 1px; }
+.rhud-corner.tr { top: 8px; right: 8px; border-width: 1px 1px 0 0; }
+.rhud-corner.bl { bottom: 8px; left: 8px; border-width: 0 0 1px 1px; }
+.rhud-corner.br { bottom: 8px; right: 8px; border-width: 0 1px 1px 0; }
+.rhud-top {
+  position: absolute;
+  top: 10px; left: 0; right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+.rhud-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: rgba(0,245,255,0.5);
+  letter-spacing: 0.1em;
+}
+.rhud-bottom {
+  position: absolute;
+  bottom: 10px; left: 0; right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+.rhud-coord {
+  font-family: var(--font-hud);
+  font-size: 9px;
+  color: rgba(0,245,255,0.4);
+  letter-spacing: 0.1em;
+}
+.rhud-motion-badge {
+  font-family: var(--font-hud);
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 2px;
+  letter-spacing: 0.1em;
+}
+.rhud-motion-badge.sensor  { color: var(--bd-green); border: 1px solid rgba(0,255,136,0.3); }
+.rhud-motion-badge.video   { color: var(--bd-yellow); border: 1px solid rgba(255,230,0,0.3); }
+.rhud-motion-badge.synth   { color: var(--bd-text-dim); border: 1px solid rgba(100,100,100,0.3); }
+
+.replay-controls {
+  padding: 14px 20px 12px;
+  border-bottom: 1px solid var(--bd-border);
+  flex-shrink: 0;
+}
+.replay-ctrl-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.rc-btn {
+  font-family: var(--font-hud);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 7px 12px;
+  border: 1px solid;
+  border-radius: 2px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--bd-cyan);
+  border-color: var(--bd-cyan);
+  flex-shrink: 0;
+  transition: background 0.1s;
+}
+.rc-btn:active { background: rgba(0,245,255,0.15); }
+.rc-btn.muted { color: var(--bd-text-dim); border-color: var(--bd-text-dim); }
+.rc-timeline {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  background: var(--bd-border);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+.rc-timeline::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px; height: 12px;
+  background: var(--bd-cyan);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(0,245,255,0.6);
+}
+.rc-timeline::-moz-range-thumb {
+  width: 12px; height: 12px;
+  background: var(--bd-cyan);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(0,245,255,0.6);
+  border: none;
+}
+.rc-time {
+  font-family: var(--font-hud);
+  font-size: 9px;
+  color: var(--bd-text-dim);
+  letter-spacing: 0.1em;
+  flex-shrink: 0;
+  min-width: 70px;
+  text-align: right;
+}
+.replay-info {
+  padding: 14px 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+.replay-info-name {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--bd-text);
+  margin-bottom: 6px;
+}
+.replay-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.rig {
+  background: var(--bd-panel);
+  border: 1px solid var(--bd-border);
+  border-radius: 3px;
+  padding: 8px 10px;
+}
+.rig-label {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--bd-text-dim);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.rig-value {
+  font-family: var(--font-hud);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--bd-cyan);
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+/* ── TAB BAR ──────────────────────────────────────────────── */
+#tab-bar {
+  height: 80px;
+  background: rgba(3,5,8,0.95);
+  border-top: 1px solid var(--bd-border);
+  display: flex;
+  align-items: flex-start;
+  padding-top: 10px;
+  flex-shrink: 0;
+  position: relative;
+  backdrop-filter: blur(20px);
+}
+#tab-bar::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--bd-cyan-dim), transparent);
+  opacity: 0.6;
+}
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 6px 0;
+  position: relative;
+  transition: opacity 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab-item.active .tab-icon { color: var(--bd-cyan); filter: drop-shadow(0 0 6px rgba(0,245,255,0.8)); }
+.tab-item.active .tab-label { color: var(--bd-cyan); }
+.tab-item:not(.active) { opacity: 0.45; }
+.tab-item:not(.active):active { opacity: 0.7; }
+.tab-icon { font-size: 22px; line-height: 1; }
+.tab-label {
+  font-family: var(--font-hud);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--bd-text-dim);
+  text-transform: uppercase;
+}
+.tab-indicator {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 20px; height: 2px;
+  background: var(--bd-cyan);
+  border-radius: 0 0 2px 2px;
+  box-shadow: 0 0 8px var(--bd-cyan);
+  display: none;
+}
+.tab-item.active .tab-indicator { display: block; }
+
+/* ── GLITCH EFFECT ────────────────────────────────────────── */
+.glitch {
+  position: relative;
+}
+.glitch::before, .glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+.glitch::before {
+  color: var(--bd-cyan);
+  animation: glitch-1 3s infinite;
+  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+  opacity: 0.5;
+}
+.glitch::after {
+  color: var(--bd-red);
+  animation: glitch-2 3s infinite;
+  clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+  opacity: 0.5;
+}
+@keyframes glitch-1 {
+  0%,96%,100% { transform: none; opacity: 0; }
+  97% { transform: translateX(-2px); opacity: 0.5; }
+  98% { transform: translateX(2px); opacity: 0.5; }
+  99% { transform: translateX(-1px); opacity: 0.5; }
+}
+@keyframes glitch-2 {
+  0%,96%,100% { transform: none; opacity: 0; }
+  97% { transform: translateX(2px); opacity: 0.5; }
+  98% { transform: translateX(-2px); opacity: 0.5; }
+  99% { transform: translateX(1px); opacity: 0.5; }
+}
+
+/* ── TOAST NOTIFICATION ───────────────────────────────────── */
+#toast {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bd-surface);
+  border: 1px solid var(--bd-cyan);
+  border-radius: 3px;
+  padding: 10px 18px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--bd-cyan);
+  letter-spacing: 0.1em;
+  z-index: 9997;
+  opacity: 0;
+  transition: all 0.25s;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 0 20px rgba(0,245,255,0.2);
+}
+#toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+#toast.error {
+  border-color: var(--bd-red);
+  color: var(--bd-red);
+  box-shadow: 0 0 20px rgba(255,42,42,0.2);
+}
+
+/* ── CONFIRM MODAL ────────────────────────────────────────── */
+#modal-confirm {
+  position: fixed;
+  inset: 0;
+  z-index: 9996;
+  background: rgba(0,0,0,0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+#modal-confirm.show { display: flex; }
+.modal-box {
+  background: var(--bd-panel);
+  border: 1px solid var(--bd-border);
+  border-radius: 4px;
+  padding: 24px;
+  width: 100%;
+  max-width: 300px;
+  position: relative;
+  overflow: hidden;
+}
+.modal-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: var(--bd-red);
+}
+.modal-title {
+  font-family: var(--font-hud);
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--bd-red);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.modal-body {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--bd-text);
+  margin-bottom: 20px;
+  font-weight: 400;
+}
+.modal-actions { display: flex; gap: 10px; }
+.modal-actions .bd-btn { flex: 1; }
+
+/* ── UTILITY ──────────────────────────────────────────────── */
+.hidden { display: none !important; }
+input[type=file] { display: none; }
+</style>
+</head>
+<body>
+
+<div id="phone-shell">
+
+  <!-- STATUS BAR -->
+  <div id="status-bar">
+    <span class="status-time" id="status-clock">00:00</span>
+    <span class="neural-id">NEURAL-ID: 77C-4B2</span>
+    <div class="status-icons">
+      <span id="status-battery">⚡88%</span>
+      <span>◈</span>
+    </div>
+  </div>
+
+  <!-- SCREEN -->
+  <div id="screen">
+
+    <!-- ══════════ HOME VIEW ══════════ -->
+    <div class="view active" id="view-home">
+      <div class="home-header">
+        <div class="home-logo glitch" data-text="BRAINDANCE">BRAIN<span>DANCE</span></div>
+        <div class="home-subtitle">// BD-OS v2.077 — NEURAL RECORDING INTERFACE</div>
+        <div class="home-tagline">WARNING: UNAUTHORIZED NEURAL ACCESS IS A CRIME UNDER NCPD CODE 7.7.2</div>
+      </div>
+
+      <div class="neural-strip">
+        <div>
+          <div class="neural-strip-label">BD LINK STATUS</div>
+          <div class="neural-strip-value" id="link-status">NOMINAL</div>
+        </div>
+        <div style="text-align:right">
+          <div class="neural-strip-label">STORAGE USED</div>
+          <div class="neural-strip-value warn" id="storage-status">—</div>
+        </div>
+        <div style="text-align:right">
+          <div class="neural-strip-label">SESSIONS</div>
+          <div class="neural-strip-value" id="session-count">0</div>
+        </div>
+      </div>
+
+      <div class="quick-grid">
+        <div class="quick-card" style="--card-accent:var(--bd-cyan)" onclick="app.nav('capture')">
+          <span class="quick-card-icon" style="color:var(--bd-cyan)">🎥</span>
+          <div class="quick-card-title">Capture</div>
+          <div class="quick-card-sub">Record + sensor</div>
+        </div>
+        <div class="quick-card" style="--card-accent:var(--bd-purple)" onclick="app.nav('upload')">
+          <span class="quick-card-icon" style="color:var(--bd-purple)">📤</span>
+          <div class="quick-card-title">Upload</div>
+          <div class="quick-card-sub">Import media</div>
+        </div>
+        <div class="quick-card" style="--card-accent:var(--bd-yellow)" onclick="app.nav('library')">
+          <span class="quick-card-icon" style="color:var(--bd-yellow)">🗄</span>
+          <div class="quick-card-title">Library</div>
+          <div class="quick-card-sub">Browse sessions</div>
+          <div class="replay-count-badge" id="home-count">0</div>
+        </div>
+        <div class="quick-card" style="--card-accent:var(--bd-green)" onclick="app.devInfo()">
+          <span class="quick-card-icon" style="color:var(--bd-green)">⚙</span>
+          <div class="quick-card-title">System</div>
+          <div class="quick-card-sub">Device info</div>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-header-line"></div>
+        <div class="section-header-text">Recent Sessions</div>
+        <div class="section-header-line"></div>
+      </div>
+      <div class="recent-list" id="home-recent"></div>
+    </div>
+
+    <!-- ══════════ UPLOAD VIEW ══════════ -->
+    <div class="view" id="view-upload">
+      <div class="view-topbar">
+        <div class="back-btn" onclick="app.nav('home')">◂ BACK</div>
+        <div class="view-title">// Import Media</div>
+      </div>
+
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+        <span class="drop-icon">🧠</span>
+        <div class="drop-main">Inject Media File</div>
+        <div class="drop-sub">Tap to browse · Drag &amp; drop supported</div>
+        <div class="drop-limit">MAX 500MB · VIDEO &amp; IMAGE · ALL FORMATS</div>
+      </div>
+      <input type="file" id="file-input" accept="video/*,image/*"/>
+
+      <div class="warn-banner" id="size-warn">⚠ FILE EXCEEDS 500MB LIMIT — BD PROCESSING STABILITY NOT GUARANTEED</div>
+      <div class="file-preview-card" id="file-preview">
+        <div class="fp-thumb-wrap">
+          <img class="fp-thumb" id="fp-thumb-img" alt=""/>
+          <div class="fp-meta">
+            <div class="fp-name" id="fp-name">—</div>
+            <div class="fp-detail">TYPE: <span id="fp-type">—</span></div>
+            <div class="fp-detail">SIZE: <span id="fp-size">—</span></div>
+            <div class="fp-detail">DIM: <span id="fp-dim">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="upload-action-pad">
+        <button class="bd-btn bd-btn-primary" id="upload-btn" disabled onclick="app.startUpload()">
+          <span class="spin"></span><span class="btn-text">◈ SELECT FILE FIRST</span>
+        </button>
+        <button class="bd-btn bd-btn-secondary" onclick="app.nav('capture')">⬡ RECORD NEW SESSION INSTEAD</button>
+      </div>
+    </div>
+
+    <!-- ══════════ CAPTURE VIEW ══════════ -->
+    <div class="view" id="view-capture">
+      <div class="view-topbar">
+        <div class="back-btn" onclick="app.stopCapture();app.nav('home')">◂ BACK</div>
+        <div class="view-title">// Neural Capture</div>
+      </div>
+
+      <div class="capture-preview-wrap">
+        <video id="capture-preview" playsinline muted autoplay></video>
+        <div class="cam-corner tl"></div>
+        <div class="cam-corner tr"></div>
+        <div class="cam-corner bl"></div>
+        <div class="cam-corner br"></div>
+        <div class="cam-crosshair"></div>
+        <div class="cam-rec-indicator" id="rec-indicator">
+          <div class="rec-dot"></div>
+          <div class="rec-time" id="rec-timer">00:00</div>
+        </div>
+        <div class="cam-sensor-status" id="sensor-label">SENSOR: INACTIVE</div>
+      </div>
+
+      <div class="capture-controls">
+        <button class="bd-btn bd-btn-primary" id="start-btn" onclick="app.startCapture()">▶ BEGIN RECORDING</button>
+        <button class="bd-btn bd-btn-danger" id="stop-btn" disabled onclick="app.stopCapture()">■ STOP + PROCESS</button>
+      </div>
+      <div class="capture-note" id="cap-note">Initialize camera to begin neural recording session</div>
+      <div style="height:10px"></div>
+    </div>
+
+    <!-- ══════════ PROCESSING VIEW ══════════ -->
+    <div class="view" id="view-processing">
+      <div class="proc-panel">
+        <span class="proc-icon" id="proc-icon">🧠</span>
+        <div class="proc-title">Processing BD Data</div>
+        <div class="proc-status" id="proc-status">Initializing neural link...</div>
+        <div class="proc-bar-wrap">
+          <div class="proc-bar" id="proc-bar"></div>
+        </div>
+        <div class="proc-percent" id="proc-pct">0%</div>
+        <div class="proc-steps">
+          <div class="proc-step" id="pstep-1">Reading media metadata</div>
+          <div class="proc-step" id="pstep-2">Extracting neural motion path</div>
+          <div class="proc-step" id="pstep-3">Normalizing camera trajectory</div>
+          <div class="proc-step" id="pstep-4">Compiling BD session</div>
+          <div class="proc-step" id="pstep-5">Writing to cortex storage</div>
+        </div>
+        <button class="bd-btn bd-btn-secondary hidden" id="explore-btn" onclick="app.openCurrentReplay()">▶ ENTER BRAINDANCE</button>
+        <button class="bd-btn bd-btn-secondary hidden" id="proc-cancel" onclick="app.cancelProcessing()" style="margin-top:10px;color:var(--bd-text-dim);border-color:var(--bd-text-dim)">✕ CANCEL</button>
+      </div>
+    </div>
+
+    <!-- ══════════ REPLAY VIEW ══════════ -->
+    <div class="view" id="view-replay">
+      <div id="replay-viewport">
+        <canvas id="replay-canvas"></canvas>
+        <div class="replay-hud-overlay">
+          <div class="rhud-corner tl"></div>
+          <div class="rhud-corner tr"></div>
+          <div class="rhud-corner bl"></div>
+          <div class="rhud-corner br"></div>
+          <div class="rhud-top">
+            <span class="rhud-label">BD REPLAY // LIVE</span>
+            <span class="rhud-motion-badge synth" id="rhud-motion">SYN</span>
+          </div>
+          <div class="rhud-bottom">
+            <span class="rhud-coord" id="rhud-coord">X:0.00 Z:0.00</span>
+            <span class="rhud-label" id="rhud-quality">Q:—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="replay-controls">
+        <div class="replay-ctrl-row">
+          <button class="rc-btn" id="rc-play" onclick="app.replayTogglePlay()">▶</button>
+          <input type="range" class="rc-timeline" id="rc-timeline" min="0" max="1000" value="0"/>
+          <span class="rc-time" id="rc-time">0:00 / 0:00</span>
+        </div>
+        <div class="replay-ctrl-row" style="gap:8px">
+          <button class="rc-btn muted" id="rc-mute" onclick="app.replayToggleMute()">🔇</button>
+          <button class="rc-btn" onclick="app.replaySetSpeed(0.5)" id="rc-spd05">0.5×</button>
+          <button class="rc-btn" onclick="app.replaySetSpeed(1)" id="rc-spd1">1×</button>
+          <button class="rc-btn" onclick="app.replaySetSpeed(2)" id="rc-spd2">2×</button>
+          <button class="rc-btn" onclick="app.nav('library')" style="color:var(--bd-text-dim);border-color:var(--bd-text-dim);margin-left:auto">✕</button>
+        </div>
+      </div>
+
+      <div class="replay-info">
+        <div class="replay-info-name" id="replay-info-name">—</div>
+        <div class="replay-info-grid">
+          <div class="rig"><div class="rig-label">Source</div><div class="rig-value" id="ri-source">—</div></div>
+          <div class="rig"><div class="rig-label">Quality</div><div class="rig-value" id="ri-quality">—</div></div>
+          <div class="rig"><div class="rig-label">Duration</div><div class="rig-value" id="ri-duration">—</div></div>
+          <div class="rig"><div class="rig-label">File Size</div><div class="rig-value" id="ri-size">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ LIBRARY VIEW ══════════ -->
+    <div class="view" id="view-library">
+      <div class="view-topbar">
+        <div class="back-btn" onclick="app.nav('home')">◂ BACK</div>
+        <div class="view-title">// Session Archive</div>
+      </div>
+      <div class="library-stats">
+        <div class="lib-stat">
+          <div class="lib-stat-value" id="lib-count">0</div>
+          <div class="lib-stat-label">Sessions</div>
+        </div>
+        <div class="lib-stat">
+          <div class="lib-stat-value" id="lib-size">0B</div>
+          <div the="lib-stat-label">Storage</div>
+        </div>
+        <div class="lib-stat">
+          <div class="lib-stat-value" id="lib-avgq">—</div>
+          <div class="lib-stat-label">Avg Quality</div>
+        </div>
+      </div>
+      <div class="library-list" id="lib-list"></div>
+    </div>
+
+  </div><!-- /screen -->
+
+  <!-- TAB BAR -->
+  <div id="tab-bar">
+    <div class="tab-item active" id="tab-home" onclick="app.nav('home')">
+      <div class="tab-indicator"></div>
+      <span class="tab-icon">⬡</span>
+      <span class="tab-label">Home</span>
+    </div>
+    <div class="tab-item" id="tab-capture" onclick="app.nav('capture')">
+      <div class="tab-indicator"></div>
+      <span class="tab-icon">◉</span>
+      <span class="tab-label">Capture</span>
+    </div>
+    <div class="tab-item" id="tab-upload" onclick="app.nav('upload')">
+      <div class="tab-indicator"></div>
+      <span class="tab-icon">⬡</span>
+      <span class="tab-label">Upload</span>
+    </div>
+    <div class="tab-item" id="tab-library" onclick="app.nav('library')">
+      <div class="tab-indicator"></div>
+      <span class="tab-icon">◈</span>
+      <span class="tab-label">Archive</span>
+    </div>
+  </div>
+
+</div><!-- /phone-shell -->
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- CONFIRM MODAL -->
+<div id="modal-confirm">
+  <div class="modal-box">
+    <div class="modal-title">⚠ Confirm Delete</div>
+    <div class="modal-body" id="modal-text">Delete this session?</div>
+    <div class="modal-actions">
+      <button class="bd-btn bd-btn-danger" id="modal-confirm-btn">DELETE</button>
+      <button class="bd-btn bd-btn-secondary" id="modal-cancel-btn">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   BD-OS APPLICATION CORE
+   ============================================================ */
+'use strict';
+
+// ── INDEXEDDB LAYER ────────────────────────────────────────
+const DB_NAME = 'bdReplayOS';
+const DB_VERSION = 1;
+let _dbPromise = null;
+
+function openDb() {
+  if (_dbPromise) return _dbPromise;
+  _dbPromise = new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains('replays')) {
+        db.createObjectStore('replays', { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains('settings')) {
+        db.createObjectStore('settings');
+      }
+    };
+    req.onerror = () => reject(req.error);
+    req.onsuccess = () => {
+      const db = req.result;
+      db.onversionchange = () => { db.close(); _dbPromise = null; };
+      resolve(db);
+    };
+  });
+  return _dbPromise;
+}
+
+async function withStore(store, mode, fn) {
+  let retries = 0;
+  while (true) {
+    try {
+      const db = await openDb();
+      return await new Promise((resolve, reject) => {
+        const tx = db.transaction(store, mode);
+        const s = tx.objectStore(store);
+        let req;
+        try { req = fn(s); } catch(e) { reject(e); return; }
+        tx.oncomplete = () => resolve(req && req.result !== undefined ? req.result : undefined);
+        tx.onabort = () => reject(tx.error || new Error('Transaction aborted'));
+        tx.onerror = () => reject(tx.error);
+      });
+    } catch(e) {
+      if (e && e.name === 'InvalidStateError' && retries < 2) {
+        _dbPromise = null; retries++; continue;
+      }
+      throw e;
+    }
+  }
+}
+
+const db = {
+  async getAll()      { return withStore('replays','readonly',  s => s.getAll()); },
+  async get(id)       { return withStore('replays','readonly',  s => s.get(id)); },
+  async save(r)       { return withStore('replays','readwrite', s => s.put(r)); },
+  async delete(id)    { return withStore('replays','readwrite', s => s.delete(id)); },
+  async update(id, u) {
+    const r = await db.get(id);
+    if (!r) return;
+    Object.assign(r, u, { updated: Date.now() });
+    await db.save(r);
+    return r;
+  },
+  async getSetting(k, def) {
+    const v = await withStore('settings','readonly', s => s.get(k));
+    return v === undefined ? def : v;
+  },
+  async setSetting(k, v) { return withStore('settings','readwrite', s => s.put(v, k)); }
+};
+
+// ── UTILITIES ──────────────────────────────────────────────
+function fmtBytes(b) {
+  if (!b || !Number.isFinite(b) || b < 0) return 'UNKNOWN';
+  if (b === 0) return '0 B';
+  const u = ['B','KB','MB','GB'];
+  const i = Math.min(u.length-1, Math.floor(Math.log(b)/Math.log(1024)));
+  return `${(b/Math.pow(1024,i)).toFixed(1)}${u[i]}`;
+}
+function fmtTime(s) {
+  const m = Math.floor(s/60);
+  return `${m}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+}
+function genId() {
+  return typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID()
+    : Date.now().toString(36) + Math.random().toString(36).slice(2);
+}
+function esc(s) {
+  return String(s||'')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function qualityClass(q) {
+  if (q >= 0.6) return 'q-high';
+  if (q >= 0.3) return 'q-med';
+  return 'q-low';
+}
+function qualityLabel(q) {
+  if (q >= 0.6) return 'HIGH';
+  if (q >= 0.3) return 'MED';
+  return 'LOW';
+}
+
+// ── THUMBNAIL CAPTURE ──────────────────────────────────────
+function captureImageThumb(file, quality) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      let w = img.naturalWidth, h = img.naturalHeight;
+      const M = 320;
+      if (w > h && w > M) { h = h*(M/w); w = M; }
+      else if (h > w && h > M) { w = w*(M/h); h = M; }
+      const c = document.createElement('canvas');
+      c.width = Math.round(w); c.height = Math.round(h);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      c.toBlob(blob => {
+        URL.revokeObjectURL(url);
+        if (!blob) { res(''); return; }
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.onerror = () => res('');
+        r.readAsDataURL(blob);
+      }, 'image/jpeg', quality);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('img load failed')); };
+    img.src = url;
+  });
+}
+
+function captureVideoThumb(file, quality) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file);
+    const v = document.createElement('video');
+    v.preload = 'auto'; v.muted = true; v.playsInline = true; v.src = url;
+    v.addEventListener('loadedmetadata', () => {
+      const dur = Number.isFinite(v.duration) && v.duration > 0 ? v.duration : 1;
+      v.currentTime = Math.min(dur*0.08, 1);
+    });
+    v.addEventListener('seeked', () => {
+      const W = v.videoWidth||320, H = v.videoHeight||240;
+      const M = 320;
+      let w=W, h=H;
+      if (w > h && w > M) { h=h*(M/w); w=M; }
+      else if (h>=w && h>M) { w=w*(M/h); h=M; }
+      const c = document.createElement('canvas');
+      c.width=Math.round(w); c.height=Math.round(h);
+      c.getContext('2d').drawImage(v,0,0,c.width,c.height);
+      c.toBlob(blob => {
+        v.src=''; v.load(); URL.revokeObjectURL(url);
+        if (!blob) { res(''); return; }
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.onerror = () => res('');
+        r.readAsDataURL(blob);
+      }, 'image/jpeg', quality);
+    }, { once:true });
+    v.onerror = () => { URL.revokeObjectURL(url); rej(new Error('video load failed')); };
+  });
+}
+
+// ── MOTION PATH COMPUTATION ────────────────────────────────
+// Sensor-based (gyroscope data from capture)
+function cameraPathFromSensor(samples) {
+  if (!samples || samples.length < 2) return [];
+  const base = { alpha: samples[0].alpha||0, beta: samples[0].beta||0, gamma: samples[0].gamma||0 };
+  const step = Math.max(1, Math.floor(samples.length/96));
+  const path = [];
+  for (let i = 0; i < samples.length && path.length < 128; i += step) {
+    const s = samples[i];
+    const t = i / (samples.length - 1);
+    const da = ((s.alpha||0) - base.alpha + 540) % 360 - 180;
+    const db = (s.beta||0) - base.beta;
+    const dg = (s.gamma||0) - base.gamma;
+    const yaw   = (da/180)*Math.PI;
+    const pitch = (db/180)*Math.PI;
+    const roll  = (dg/90)*Math.PI*0.3;
+    const r = 2.6 - 1.6*t;
+    path.push({ t, x: Math.sin(yaw)*r + Math.cos(roll)*0.2, y: pitch*0.4, z: Math.cos(yaw)*r, yaw, pitch });
+  }
+  return path;
+}
+
+function sensorMotionQuality(samples) {
+  if (!samples || samples.length < 2) return 0;
+  let totalVel = 0;
+  for (let i = 1; i < samples.length; i++) {
+    const dt = ((samples[i].time||0) - (samples[i-1].time||0)) / 1000 || 0.033;
+    const da = Math.min(Math.abs((samples[i].alpha||0)-(samples[i-1].alpha||0)), 360-Math.abs((samples[i].alpha||0)-(samples[i-1].alpha||0)));
+    const db = Math.abs((samples[i].beta||0)-(samples[i-1].beta||0));
+    const dg = Math.abs((samples[i].gamma||0)-(samples[i-1].gamma||0));
+    totalVel += (da + db + dg) / Math.max(dt, 0.016);
+  }
+  return Math.min(1, (totalVel / samples.length) / 90);
+}
+
+// Optical-flow-inspired motion estimation (downsampled, main-thread safe)
+async function estimateMotionFromVideo(blob, onProgress) {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(blob);
+    const v = document.createElement('video');
+    v.preload='auto'; v.muted=true; v.playsInline=true; v.src=url;
+    v.addEventListener('loadedmetadata', async () => {
+      const dur = Number.isFinite(v.duration) && v.duration > 0 ? v.duration : 5;
+      // Downsample canvas: 128x72 max for perf
+      const TW = 128, TH = Math.round(128 * (v.videoHeight||9) / (v.videoWidth||16));
+      const c = document.createElement('canvas');
+      c.width = TW; c.height = TH;
+      const ctx = c.getContext('2d');
+      const N = 32;
+      let prevData = null;
+      let accumX=0, accumY=0, accumZ=0;
+      const raw = [];
+
+      for (let i = 0; i < N; i++) {
+        const t = i/(N-1);
+        await new Promise((ok,fail) => {
+          const onSeeked = () => { v.removeEventListener('seeked',onSeeked); ok(); };
+          v.addEventListener('seeked', onSeeked);
+          try { v.currentTime = Math.min(v.duration - 0.05, dur*t); }
+          catch(e) { v.currentTime = 0; }
+        });
+        ctx.drawImage(v, 0, 0, TW, TH);
+        const data = ctx.getImageData(0,0,TW,TH).data;
+
+        if (prevData) {
+          // Simple block-based optical flow: divide into 4x4 grid, compare brightness shifts
+          let dxTot=0, dyTot=0, brightDiff=0;
+          const bx = Math.floor(TW/4), by = Math.floor(TH/4);
+          for (let gy=0; gy<4; gy++) {
+            for (let gx=0; gx<4; gx++) {
+              let sumCur=0, sumPrev=0;
+              let sumCurL=0, sumCurR=0, sumCurT=0, sumCurB=0;
+              let n=0;
+              for (let py=gy*by; py<(gy+1)*by; py+=2) {
+                for (let px=gx*bx; px<(gx+1)*bx; px+=2) {
+                  const idx=(py*TW+px)*4;
+                  const cur=(data[idx]+data[idx+1]+data[idx+2])/3;
+                  const prev=(prevData[idx]+prevData[idx+1]+prevData[idx+2])/3;
+                  sumCur+=cur; sumPrev+=prev;
+                  if (px < gx*bx + bx/2) sumCurL+=cur; else sumCurR+=cur;
+                  if (py < gy*by + by/2) sumCurT+=cur; else sumCurB+=cur;
+                  n++;
+                }
+              }
+              brightDiff += Math.abs(sumCur-sumPrev)/Math.max(n,1)/255;
+              dxTot += (sumCurR-sumCurL)/Math.max(n/2,1)/255;
+              dyTot += (sumCurB-sumCurT)/Math.max(n/2,1)/255;
+            }
+          }
+          accumX += (dxTot/16)*0.3;
+          accumY += (dyTot/16)*0.2;
+          accumZ += (brightDiff/16)*0.15;
+        }
+        prevData = new Uint8ClampedArray(data);
+        raw.push({ t, x:accumX, y:accumY, z:accumZ });
+        if (onProgress) onProgress(Math.round(((i+1)/N)*100), 'Analyzing motion vectors');
+      }
+
+      v.src=''; v.load(); URL.revokeObjectURL(url);
+
+      // Normalize to [-1.5,1.5] for x/y, [1,2.5] for z
+      const xs=raw.map(p=>p.x), ys=raw.map(p=>p.y), zs=raw.map(p=>p.z);
+      const norm = (v, min, max) => max!==min ? (v-min)/(max-min) : 0.5;
+      const minX=Math.min(...xs), maxX=Math.max(...xs);
+      const minY=Math.min(...ys), maxY=Math.max(...ys);
+      const minZ=Math.min(...zs), maxZ=Math.max(...zs);
+      const path = raw.map(p => ({
+        t: p.t,
+        x: norm(p.x,minX,maxX)*3 - 1.5,
+        y: norm(p.y,minY,maxY)*0.8 - 0.4,
+        z: 2.5 - norm(p.z,minZ,maxZ)*1.5
+      }));
+
+      let dist=0;
+      for (let i=1; i<path.length; i++) {
+        const dx=path[i].x-path[i-1].x, dz=path[i].z-path[i-1].z;
+        dist+=Math.sqrt(dx*dx+dz*dz);
+      }
+      const motionQuality = Math.min(1, dist/(path.length*0.08));
+      resolve({ cameraPath:path, motionQuality });
+    });
+    v.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve({ cameraPath: syntheticPath(), motionQuality: 0 });
+    };
+  });
+}
+
+function syntheticPath(n=64) {
+  const path=[];
+  for (let i=0;i<n;i++) {
+    const t=i/(n-1), a=t*Math.PI*2, r=2.2+Math.sin(t*Math.PI)*0.3;
+    path.push({t, x:Math.sin(a)*r, y:Math.cos(t*Math.PI*4)*0.1, z:Math.cos(a)*r});
+  }
+  return path;
+}
+
+// ── REPLAY CANVAS RENDERER ─────────────────────────────────
+class BDRenderer {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.gl = null;
+    this.ctx2d = null;
+    this._use2d(canvas);
+    this.path = [];
+    this.t = 0;
+    this.playing = false;
+    this.speed = 1;
+    this.mediaEl = null;
+    this.mediaSrc = null;
+    this.aspect = 16/9;
+    this._raf = null;
+    this._last = 0;
+    this._dirty = true;
+    this._onframe = this._frame.bind(this);
+  }
+  _use2d(canvas) {
+    this.ctx2d = canvas.getContext('2d');
+  }
+  async loadMedia(blob, kind) {
+    this._clearMedia();
+    this.kind = kind;
+    this.mediaSrc = URL.createObjectURL(blob);
+    if (kind === 'image') {
+      const img = new Image();
+      await new Promise((res,rej) => { img.onload=res; img.onerror=rej; img.src=this.mediaSrc; });
+      this.mediaEl = img;
+      this.aspect = img.naturalWidth / img.naturalHeight || 16/9;
+    } else {
+      const v = document.createElement('video');
+      v.src=this.mediaSrc; v.muted=true; v.playsInline=true; v.preload='auto'; v.loop=false;
+      await new Promise((res) => {
+        v.addEventListener('loadedmetadata', res, {once:true});
+        v.onerror = res;
+      });
+      this.mediaEl = v;
+      this.aspect = (v.videoWidth||16)/(v.videoHeight||9);
+    }
+    this._dirty = true;
+    this._render();
+  }
+  setPath(path) { this.path = path||[]; this._dirty=true; }
+  play() {
+    if (this.kind==='video' && this.mediaEl) this.mediaEl.play().catch(()=>{});
+    this.playing=true; this._last=performance.now(); this._scheduleRaf();
+  }
+  pause() {
+    if (this.kind==='video' && this.mediaEl) this.mediaEl.pause();
+    this.playing=false;
+  }
+  setMuted(m) { if (this.kind==='video' && this.mediaEl) this.mediaEl.muted=m; }
+  setSpeed(s) { this.speed=s; if(this.kind==='video'&&this.mediaEl) this.mediaEl.playbackRate=s; }
+  seek(t01) {
+    this.t=Math.max(0,Math.min(1,t01));
+    if (this.kind==='video'&&this.mediaEl&&Number.isFinite(this.mediaEl.duration)) {
+      this.mediaEl.currentTime = this.t * this.mediaEl.duration;
+    }
+    this._dirty=true; this._render();
+  }
+  getDuration() {
+    if (this.kind==='video'&&this.mediaEl&&Number.isFinite(this.mediaEl.duration)) return this.mediaEl.duration;
+    return 0;
+  }
+  getCurrentT() {
+    if (this.kind==='video'&&this.mediaEl&&Number.isFinite(this.mediaEl.duration)&&this.mediaEl.duration>0) {
+      return this.mediaEl.currentTime / this.mediaEl.duration;
+    }
+    return this.t;
+  }
+  _scheduleRaf() {
+    if (!this._raf) this._raf = requestAnimationFrame(this._onframe);
+  }
+  _frame(now) {
+    this._raf = null;
+    const delta = (now - this._last)/1000;
+    this._last = now;
+    if (this.playing) {
+      if (this.kind==='image') {
+        this.t = (this.t + delta*this.speed*0.05) % 1;
+      } else {
+        this.t = this.getCurrentT();
+        if (this.t >= 0.999) { this.t=0; this.pause(); }
+      }
+      this._dirty=true;
+    }
+    if (this._dirty) this._render();
+    if (this.playing) this._raf = requestAnimationFrame(this._onframe);
+  }
+  _getCamPos() {
+    if (!this.path || this.path.length < 2) return {x:0,y:0,z:2.5};
+    const idx = Math.min(this.path.length-2, Math.floor(this.t*(this.path.length-1)));
+    const lt  = this.t*(this.path.length-1) - idx;
+    const p0=this.path[idx], p1=this.path[idx+1];
+    return {
+      x: p0.x + (p1.x-p0.x)*lt,
+      y: p0.y + (p1.y-p0.y)*lt,
+      z: p0.z + (p1.z-p0.z)*lt
+    };
+  }
+  _render() {
+    this._dirty = false;
+    const c = this.canvas, ctx = this.ctx2d;
+    const W = c.width = c.offsetWidth * devicePixelRatio;
+    const H = c.height = c.offsetHeight * devicePixelRatio;
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
+
+    if (!this.mediaEl) return;
+    // Camera position drives a perspective-like transform
+    const cam = this._getCamPos();
+    // Project plane to 2D canvas with simulated 3D perspective
+    const fov = 60 * Math.PI/180;
+    const z = Math.max(0.5, cam.z);
+    const scale = (H/2) / (Math.tan(fov/2)*z);
+    // Offset in screen space from cam.x and cam.y
+    const offX = (-cam.x / z) * scale * 1.2;
+    const offY = (cam.y / z) * scale;
+    // Plane dimensions in world = 2 wide, 2/aspect tall
+    const pw = scale * 2;
+    const ph = pw / this.aspect;
+    const cx = W/2 + offX, cy = H/2 + offY;
+    const x0 = cx - pw/2, y0 = cy - ph/2;
+
+    ctx.save();
+    ctx.drawImage(this.mediaEl, x0, y0, pw, ph);
+    ctx.restore();
+
+    // Scan-line effect over the media
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    for (let y=y0; y<y0+ph; y+=4) { ctx.fillRect(x0,y,pw,1); }
+
+    // Vignette
+    const grad = ctx.createRadialGradient(W/2,H/2,H*0.3,W/2,H/2,H*0.7);
+    grad.addColorStop(0,'transparent');
+    grad.addColorStop(1,'rgba(0,0,0,0.6)');
+    ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
+  }
+  _clearMedia() {
+    if (this.mediaEl && this.kind==='video') { this.mediaEl.pause(); this.mediaEl.src=''; this.mediaEl.load(); }
+    if (this.mediaSrc) { URL.revokeObjectURL(this.mediaSrc); this.mediaSrc=null; }
+    this.mediaEl=null;
+  }
+  destroy() {
+    this.pause();
+    if (this._raf) { cancelAnimationFrame(this._raf); this._raf=null; }
+    this._clearMedia();
+  }
+}
+
+// ── APP STATE & NAVIGATION ─────────────────────────────────
+const app = (() => {
+  let currentView = 'home';
+  let replays = [];
+  let captureState = { stream:null, recorder:null, chunks:[], samples:[], collecting:false, timer:null, sec:0 };
+  let processingId = null;
+  let processingAbort = false;
+  let bdRenderer = null;
+  let currentReplayId = null;
+  let _toastTimer = null;
+
+  // Clock
+  function initClock() {
+    const el = document.getElementById('status-clock');
+    const tick = () => {
+      const d=new Date();
+      el.textContent = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    };
+    tick(); setInterval(tick,10000);
+  }
+
+  function toast(msg, type='ok') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = type==='err' ? 'show error' : 'show';
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(()=>el.className='', 2800);
+  }
+
+  async function showConfirm(msg) {
+    return new Promise(res => {
+      document.getElementById('modal-text').textContent = msg;
+      document.getElementById('modal-confirm').classList.add('show');
+      document.getElementById('modal-confirm-btn').onclick = ()=>{ document.getElementById('modal-confirm').classList.remove('show'); res(true); };
+      document.getElementById('modal-cancel-btn').onclick = ()=>{ document.getElementById('modal-confirm').classList.remove('show'); res(false); };
+    });
+  }
+
+  function nav(viewName) {
+    // Clean up when leaving
+    if (currentView==='capture' && viewName!=='capture') { stopCapture(); }
+    if (currentView==='replay' && viewName!=='replay' && bdRenderer) { bdRenderer.destroy(); bdRenderer=null; }
+
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+    document.getElementById(`view-${viewName}`)?.classList.add('active');
+    document.getElementById(`tab-${viewName}`)?.classList.add('active');
+
+    // Hide tab bar on processing/replay
+    const noBar = ['processing','replay'];
+    document.getElementById('tab-bar').style.display = noBar.includes(viewName)?'none':'flex';
+
+    currentView = viewName;
+
+    if (viewName==='home')    refreshHome();
+    if (viewName==='library') refreshLibrary();
+    if (viewName==='upload')  resetUpload();
+    if (viewName==='capture') initCameraPreview();
+  }
+
+  // ── HOME ──────────────────────────────────────────────────
+  async function refreshHome() {
+    replays = (await db.getAll().catch(()=>[])) || [];
+    replays.sort((a,b)=>b.created-a.created);
+    document.getElementById('home-count').textContent = replays.length;
+    document.getElementById('session-count').textContent = replays.length;
+
+    // Storage estimate
+    if (navigator.storage && navigator.storage.estimate) {
+      const { usage, quota } = await navigator.storage.estimate();
+      const pct = Math.round((usage/quota)*100);
+      const el = document.getElementById('storage-status');
+      el.textContent = `${fmtBytes(usage)} / ${Math.round(pct)}%`;
+      el.className = 'neural-strip-value' + (pct>80?' danger':pct>50?' warn':'');
+    }
+
+    const listEl = document.getElementById('home-recent');
+    listEl.innerHTML='';
+    if (!replays.length) {
+      listEl.innerHTML='<div style="font-family:var(--font-mono);font-size:10px;color:var(--bd-text-dim);text-align:center;padding:24px 0;letter-spacing:0.12em;">NO SESSIONS IN CORTEX STORAGE</div>';
+      return;
+    }
+    replays.slice(0,4).forEach(r => {
+      const item = document.createElement('div');
+      item.className='recent-item';
+      item.onclick = ()=>openReplay(r.id);
+      const q = (r.motionQuality||0);
+      if (r.thumbnail) {
+        const img = document.createElement('img');
+        img.className='recent-thumb'; img.src=r.thumbnail; img.alt='';
+        item.appendChild(img);
+      } else {
+        const ph=document.createElement('div');
+        ph.className='recent-thumb-placeholder';
+        ph.textContent=r.mediaKind==='video'?'🎥':'🖼';
+        item.appendChild(ph);
+      }
+      const info=document.createElement('div'); info.className='recent-info';
+      const nameEl=document.createElement('div'); nameEl.className='recent-name'; nameEl.textContent=r.name||'Untitled';
+      const metaEl=document.createElement('div'); metaEl.className='recent-meta';
+      metaEl.textContent=`${r.mediaKind?.toUpperCase()||'?'} · ${fmtBytes(r.fileSize)} · ${r.motionSource?.toUpperCase()||'?'} `;
+      const qEl=document.createElement('div');
+      qEl.className=`recent-quality ${qualityClass(q)}`;
+      qEl.textContent=`Q:${qualityLabel(q)} ${Math.round(q*100)}%`;
+      info.append(nameEl,metaEl,qEl);
+      item.appendChild(info);
+      listEl.appendChild(item);
+    });
+  }
+
+  // ── UPLOAD ────────────────────────────────────────────────
+  let selectedFile = null;
+
+  function resetUpload() {
+    selectedFile=null;
+    document.getElementById('upload-btn').disabled=true;
+    document.getElementById('upload-btn').querySelector('.btn-text').textContent='◈ SELECT FILE FIRST';
+    document.getElementById('file-preview').classList.remove('show');
+    document.getElementById('size-warn').classList.remove('show');
+    document.getElementById('drop-zone').classList.remove('over');
+  }
+
+  async function handleFile(file) {
+    if (!file) return;
+    selectedFile = file;
+    const isOver = file.size > 500*1024*1024;
+    document.getElementById('size-warn').classList.toggle('show', isOver);
+
+    // Preview
+    const fp = document.getElementById('file-preview');
+    fp.classList.add('show');
+    document.getElementById('fp-name').textContent = file.name;
+    document.getElementById('fp-type').textContent = file.type||'UNKNOWN';
+    document.getElementById('fp-size').textContent = fmtBytes(file.size);
+    document.getElementById('fp-dim').textContent = '—';
+
+    // Generate thumb preview
+    const thumb = document.getElementById('fp-thumb-img');
+    thumb.src='';
+    try {
+      const isImg = file.type.startsWith('image');
+      const url = URL.createObjectURL(file);
+      thumb.src=url;
+      if (isImg) {
+        const img=new Image();
+        img.onload=()=>{ document.getElementById('fp-dim').textContent=`${img.naturalWidth}×${img.naturalHeight}`; URL.revokeObjectURL(url); };
+        img.src=url;
+      } else {
+        const v=document.createElement('video');
+        v.preload='metadata'; v.src=url;
+        v.addEventListener('loadedmetadata',()=>{
+          document.getElementById('fp-dim').textContent=`${v.videoWidth}×${v.videoHeight}`;
+          URL.revokeObjectURL(url);
+        },{once:true});
+      }
+    } catch(e) {}
+
+    const btn = document.getElementById('upload-btn');
+    btn.disabled = false;
+    btn.querySelector('.btn-text').textContent = '◈ INJECT INTO BD SYSTEM';
+  }
+
+  async function startUpload() {
+    if (!selectedFile) return;
+    const btn = document.getElementById('upload-btn');
+    btn.classList.add('loading'); btn.disabled=true;
+    btn.querySelector('.btn-text').textContent='Generating thumbnail...';
+    try {
+      const id = genId();
+      const quality = 0.78;
+      const mediaKind = selectedFile.type.startsWith('image')?'image':'video';
+      let thumbnail='';
+      try {
+        thumbnail = mediaKind==='image'
+          ? await captureImageThumb(selectedFile, quality)
+          : await captureVideoThumb(selectedFile, quality);
+      } catch(e) {}
+      const mediaBlob = new Blob([selectedFile], { type: selectedFile.type });
+      const replay = {
+        id, name: selectedFile.name.replace(/\.[^.]+$/,'') || 'Untitled',
+        created: Date.now(), updated: Date.now(),
+        status: 'processing', fileSize: selectedFile.size,
+        mediaKind, mediaType: selectedFile.type,
+        mediaBlob, thumbnail, motionSource:'synthetic', motionQuality:0, cameraPath:[],
+        hasSensor:false, sensorSamples:[]
+      };
+      await db.save(replay);
+      processingId = id;
+      nav('processing');
+      processReplay(id);
+    } catch(e) {
+      toast('Upload failed: '+e.message, 'err');
+      btn.classList.remove('loading'); btn.disabled=false;
+      btn.querySelector('.btn-text').textContent='◈ INJECT INTO BD SYSTEM';
+    }
+  }
+
+  // Drop zone events
+  function initDropZone() {
+    const dz = document.getElementById('drop-zone');
+    const fi = document.getElementById('file-input');
+    fi.addEventListener('change', ()=>{ if(fi.files[0]) handleFile(fi.files[0]); fi.value=''; });
+    dz.addEventListener('dragover', e=>{ e.preventDefault(); dz.classList.add('over'); });
+    dz.addEventListener('dragleave', e=>{ e.preventDefault(); dz.classList.remove('over'); });
+    dz.addEventListener('drop', e=>{ e.preventDefault(); dz.classList.remove('over'); if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+  }
+
+  // ── CAPTURE ───────────────────────────────────────────────
+  async function initCameraPreview() {
+    const preview = document.getElementById('capture-preview');
+    if (captureState.stream) return; // already active
+    document.getElementById('start-btn').disabled=false;
+    document.getElementById('stop-btn').disabled=true;
+    document.getElementById('cap-note').textContent='Initialize camera to begin neural recording session';
+    // Request iOS orientation permission proactively
+    if (typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function') {
+      document.getElementById('cap-note').textContent='Tap START to request sensor + camera access';
+    }
+  }
+
+  async function startCapture() {
+    const startBtn=document.getElementById('start-btn'), stopBtn=document.getElementById('stop-btn');
+    startBtn.disabled=true;
+    // iOS orientation permission
+    if (typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function') {
+      try {
+        const perm = await DeviceOrientationEvent.requestPermission();
+        if (perm!=='granted') toast('Sensor access denied — recording without motion data','err');
+      } catch(e) {}
+    }
+    // Camera
+    let stream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}, audio:true });
+    } catch(e) {
+      toast('Camera access denied: '+e.message,'err');
+      startBtn.disabled=false; return;
+    }
+    const preview = document.getElementById('capture-preview');
+    preview.srcObject = stream; preview.play().catch(()=>{});
+    captureState.stream=stream; captureState.chunks=[]; captureState.samples=[]; captureState.collecting=true;
+
+    // Sensor
+    const onOrient = (e) => {
+      if (!captureState.collecting) return;
+      captureState.samples.push({ alpha:e.alpha??0, beta:e.beta??0, gamma:e.gamma??0, time:performance.now() });
+    };
+    window.addEventListener('deviceorientation', onOrient);
+    captureState._onOrient = onOrient;
+    document.getElementById('sensor-label').textContent = 'SENSOR: ACTIVE';
+
+    // MediaRecorder — detect supported mimeType
+    const mimes = ['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];
+    const mimeType = mimes.find(m => MediaRecorder.isTypeSupported(m)) || '';
+    const recorder = new MediaRecorder(stream, mimeType ? {mimeType} : {});
+    recorder.ondataavailable = e => { if(e.data&&e.data.size>0) captureState.chunks.push(e.data); };
+    recorder.onstop = async () => {
+      captureState.collecting=false;
+      window.removeEventListener('deviceorientation', captureState._onOrient);
+      const blob = new Blob(captureState.chunks, { type: mimeType||recorder.mimeType||'video/webm' });
+      preview.pause(); preview.srcObject=null;
+      stream.getTracks().forEach(t=>t.stop());
+      captureState.stream=null;
+      clearInterval(captureState.timer); captureState.sec=0;
+      document.getElementById('rec-indicator').classList.remove('show');
+      document.getElementById('sensor-label').textContent='SENSOR: INACTIVE';
+      startBtn.disabled=false; stopBtn.disabled=true;
+      // Create replay
+      const id=genId();
+      const hasSensor = captureState.samples.length > 10;
+      const thumbnail = await captureVideoThumb(blob, 0.78).catch(()=>'');
+      const replay = {
+        id, name:`BD_${new Date().toISOString().slice(0,16).replace('T','_')}`,
+        created:Date.now(), updated:Date.now(), status:'processing',
+        fileSize:blob.size, mediaKind:'video', mediaType:blob.type,
+        mediaBlob: blob, thumbnail, motionSource:hasSensor?'sensor':'synthetic',
+        motionQuality:0, cameraPath:[], hasSensor,
+        sensorSamples: hasSensor ? captureState.samples : []
+      };
+      await db.save(replay);
+      processingId=id;
+      nav('processing');
+      processReplay(id);
+    };
+    captureState.recorder=recorder;
+    recorder.start(250);
+    stopBtn.disabled=false;
+    document.getElementById('rec-indicator').classList.add('show');
+    // Timer
+    captureState.sec=0;
+    captureState.timer = setInterval(() => {
+      captureState.sec++;
+      document.getElementById('rec-timer').textContent=fmtTime(captureState.sec);
+      if (captureState.sec >= 300) stopCapture();
+    }, 1000);
+    document.getElementById('cap-note').textContent=`Recording · ${hasSensor?'Sensor data collecting':'No sensor data'} · Max 5min`;
+  }
+
+  function stopCapture() {
+    if (captureState.recorder && captureState.recorder.state==='recording') {
+      captureState.recorder.stop();
+    } else if (captureState.stream) {
+      captureState.stream.getTracks().forEach(t=>t.stop());
+      captureState.stream=null;
+    }
+    if (captureState.timer) { clearInterval(captureState.timer); captureState.timer=null; }
+  }
+
+  // ── PROCESSING ───────────────────────────────────────────
+  async function processReplay(id) {
+    processingAbort = false;
+    const setStep = (n,state) => {
+      for (let i=1;i<=5;i++) {
+        const el=document.getElementById(`pstep-${i}`);
+        if (!el) continue;
+        el.className='proc-step' + (i<n?' done':i===n?' active':'');
+      }
+    };
+    const setProgress = (pct, status) => {
+      if (processingAbort) return;
+      document.getElementById('proc-bar').style.width=`${pct}%`;
+      document.getElementById('proc-pct').textContent=`${Math.round(pct)}%`;
+      document.getElementById('proc-status').textContent=status;
+    };
+    const cancelBtn = document.getElementById('proc-cancel');
+    cancelBtn.classList.remove('hidden');
+
+    try {
+      setProgress(5,'Reading media metadata'); setStep(1,'active');
+      const replay = await db.get(id);
+      if (!replay) { setProgress(0,'ERROR: Replay not found'); return; }
+      if (processingAbort) return;
+
+      setProgress(15,'Extracting neural motion path'); setStep(2,'active');
+      let cameraPath=[], motionQuality=0, motionSource='synthetic';
+
+      if (replay.hasSensor && replay.sensorSamples?.length > 10) {
+        cameraPath = cameraPathFromSensor(replay.sensorSamples);
+        motionQuality = sensorMotionQuality(replay.sensorSamples);
+        motionSource = 'sensor';
+        setProgress(70, 'Sensor path computed');
+      } else if (replay.mediaKind==='video') {
+        const result = await estimateMotionFromVideo(replay.mediaBlob, (p,stage) => {
+          if (!processingAbort) setProgress(15+p*0.55, stage);
+        });
+        if (processingAbort) return;
+        cameraPath=result.cameraPath; motionQuality=result.motionQuality; motionSource='video';
+      } else {
+        cameraPath=syntheticPath(); motionQuality=0; motionSource='synthetic';
+        setProgress(70,'Synthetic path generated');
+      }
+
+      if (processingAbort) return;
+      setProgress(75,'Normalizing camera trajectory'); setStep(3,'active');
+      await new Promise(r=>setTimeout(r,300));
+
+      setProgress(88,'Compiling BD session'); setStep(4,'active');
+      await new Promise(r=>setTimeout(r,200));
+
+      setProgress(96,'Writing to cortex storage'); setStep(5,'active');
+      await db.update(id, { status:'ready', cameraPath, motionQuality, motionSource });
+      setProgress(100,'Neural session ready');
+      for(let i=1;i<=5;i++) document.getElementById(`pstep-${i}`).className='proc-step done';
+
+      cancelBtn.classList.add('hidden');
+      document.getElementById('explore-btn').classList.remove('hidden');
+      document.getElementById('proc-status').textContent='⬡ BD SESSION COMPILED — READY FOR PLAYBACK';
+      document.getElementById('proc-icon').textContent='⚡';
+
+    } catch(e) {
+      if (!processingAbort) {
+        setProgress(0, `ERROR: ${e.message}`);
+        document.getElementById('proc-status').textContent='PROCESSING FAILED — '+e.message;
+        cancelBtn.classList.add('hidden');
+        const retryBtn=document.getElementById('explore-btn');
+        retryBtn.textContent='← BACK TO LIBRARY';
+        retryBtn.classList.remove('hidden');
+        retryBtn.onclick=()=>nav('library');
+      }
+    }
+  }
+
+  function cancelProcessing() {
+    processingAbort=true;
+    if (processingId) db.delete(processingId).catch(()=>{});
+    nav('library');
+  }
+
+  function openCurrentReplay() {
+    if (processingId) openReplay(processingId);
+  }
+
+  // ── REPLAY VIEWER ─────────────────────────────────────────
+  async function openReplay(id) {
+    const replay = await db.get(id);
+    if (!replay) { toast('Session not found','err'); return; }
+    currentReplayId=id;
+    nav('replay');
+
+    // Destroy any existing renderer
+    if (bdRenderer) { bdRenderer.destroy(); bdRenderer=null; }
+
+    const canvas = document.getElementById('replay-canvas');
+    bdRenderer = new BDRenderer(canvas);
+
+    // Load media
+    try {
+      await bdRenderer.loadMedia(replay.mediaBlob||new Blob(), replay.mediaKind||'image');
+    } catch(e) { toast('Failed to load media','err'); }
+
+    bdRenderer.setPath(replay.cameraPath||syntheticPath());
+
+    // HUD
+    document.getElementById('replay-info-name').textContent = replay.name||'Untitled';
+    const q=replay.motionQuality||0;
+    const mBadge=document.getElementById('rhud-motion');
+    mBadge.textContent=({sensor:'SEN',video:'VID',synthetic:'SYN'}[replay.motionSource]||'SYN');
+    mBadge.className='rhud-motion-badge '+(replay.motionSource||'synth');
+    document.getElementById('rhud-quality').textContent=`Q:${Math.round(q*100)}%`;
+    document.getElementById('ri-source').textContent=(replay.motionSource||'synthetic').toUpperCase();
+    document.getElementById('ri-quality').textContent=`${Math.round(q*100)}%`;
+    document.getElementById('ri-duration').textContent=replay.mediaKind==='video'?'VIDEO':'IMG';
+    document.getElementById('ri-size').textContent=fmtBytes(replay.fileSize);
+
+    // Timeline update loop
+    const tl=document.getElementById('rc-timeline');
+    const timeEl=document.getElementById('rc-time');
+    const coordEl=document.getElementById('rhud-coord');
+    let tlRaf;
+    const updateTl=()=>{
+      const t=bdRenderer.getCurrentT();
+      tl.value=Math.round(t*1000);
+      const dur=bdRenderer.getDuration();
+      if(dur>0) timeEl.textContent=`${fmtTime(t*dur)} / ${fmtTime(dur)}`;
+      const cam=bdRenderer._getCamPos();
+      coordEl.textContent=`X:${cam.x.toFixed(2)} Z:${cam.z.toFixed(2)}`;
+      tlRaf=requestAnimationFrame(updateTl);
+    };
+    tlRaf=requestAnimationFrame(updateTl);
+
+    tl.addEventListener('input',()=>{
+      bdRenderer.seek(tl.value/1000);
+    });
+    tl.addEventListener('change',()=>{});
+
+    const rcPlay=document.getElementById('rc-play');
+    rcPlay.onclick=()=>replayTogglePlay();
+    rcPlay.textContent='▶';
+
+    // Stop update loop on nav away
+    const origDestroy=bdRenderer.destroy.bind(bdRenderer);
+    bdRenderer.destroy=()=>{ cancelAnimationFrame(tlRaf); origDestroy(); };
+  }
+
+  function replayTogglePlay() {
+    if (!bdRenderer) return;
+    const btn=document.getElementById('rc-play');
+    if (bdRenderer.playing) { bdRenderer.pause(); btn.textContent='▶'; }
+    else { bdRenderer.play(); btn.textContent='⏸'; }
+  }
+
+  function replayToggleMute() {
+    if (!bdRenderer) return;
+    const btn=document.getElementById('rc-mute');
+    const v=bdRenderer.mediaEl;
+    if (!v || bdRenderer.kind!=='video') return;
+    v.muted = !v.muted;
+    btn.textContent = v.muted ? '🔇' : '🔊';
+    btn.classList.toggle('muted', v.muted);
+  }
+
+  function replaySetSpeed(s) {
+    if (!bdRenderer) return;
+    bdRenderer.setSpeed(s);
+    ['05','1','2'].forEach(x=>{
+      document.getElementById(`rc-spd${x}`)?.classList.remove('active');
+    });
+    document.getElementById(`rc-spd${String(s).replace('.','')}`);
+    toast(`Speed: ${s}×`);
+  }
+
+  // ── LIBRARY ───────────────────────────────────────────────
+  async function refreshLibrary() {
+    replays = (await db.getAll().catch(()=>[])) || [];
+    replays.sort((a,b)=>b.created-a.created);
+
+    const totalSize=replays.reduce((s,r)=>s+(r.fileSize||0),0);
+    const avgQ=replays.length?replays.reduce((s,r)=>s+(r.motionQuality||0),0)/replays.length:0;
+    document.getElementById('lib-count').textContent=replays.length;
+    document.getElementById('lib-size').textContent=fmtBytes(totalSize);
+    document.getElementById('lib-avgq').textContent=replays.length?`${Math.round(avgQ*100)}%`:'—';
+
+    const listEl=document.getElementById('lib-list');
+    listEl.innerHTML='';
+
+    if (!replays.length) {
+      listEl.innerHTML=`<div class="lib-empty"><div class="lib-empty-icon">◈</div><div class="lib-empty-text">No BD Sessions Found</div><div class="lib-empty-sub">Capture or upload media to begin</div></div>`;
+      return;
+    }
+
+    replays.forEach(r => {
+      const card=document.createElement('div');
+      card.className='lib-card';
+      card.dataset.id=r.id;
+      const q=r.motionQuality||0;
+      const qColor=q>=0.6?'var(--bd-green)':q>=0.3?'var(--bd-yellow)':'var(--bd-red)';
+
+      const inner=document.createElement('div');
+      inner.className='lib-card-inner';
+
+      // Thumb
+      const thumbEl = r.thumbnail
+        ? (() => { const i=document.createElement('img'); i.className='lib-thumb'; i.src=r.thumbnail; i.alt=''; i.onclick=()=>openReplay(r.id); return i; })()
+        : (() => { const d=document.createElement('div'); d.className='lib-thumb-ph'; d.textContent=r.mediaKind==='video'?'🎥':'🖼'; return d; })();
+      inner.appendChild(thumbEl);
+
+      // Info
+      const info=document.createElement('div'); info.className='lib-info';
+      const nameEl=document.createElement('div'); nameEl.className='lib-name'; nameEl.textContent=r.name||'Untitled';
+      const metaEl=document.createElement('div'); metaEl.className='lib-meta';
+      metaEl.textContent=`${(r.mediaKind||'?').toUpperCase()} · ${fmtBytes(r.fileSize)} · ${(r.motionSource||'?').toUpperCase()}`;
+      const qBar=document.createElement('div'); qBar.className='lib-quality-bar';
+      const qFill=document.createElement('div'); qFill.className='lib-quality-fill';
+      qFill.style.width=`${Math.round(q*100)}%`; qFill.style.background=qColor;
+      qBar.appendChild(qFill);
+      info.append(nameEl,metaEl,qBar);
+      inner.appendChild(info);
+      card.appendChild(inner);
+
+      // Actions
+      const actions=document.createElement('div'); actions.className='lib-actions';
+
+      const openBtn=document.createElement('button'); openBtn.className='lib-btn lib-btn-open'; openBtn.textContent='▶ PLAY';
+      openBtn.onclick=()=>openReplay(r.id);
+
+      const renBtn=document.createElement('button'); renBtn.className='lib-btn lib-btn-rename'; renBtn.textContent='✎ RENAME';
+      renBtn.onclick=()=>{
+        nameEl.style.display='none';
+        const inp=document.createElement('input'); inp.className='lib-name-input'; inp.type='text'; inp.value=r.name||'';
+        info.insertBefore(inp,metaEl);
+        inp.focus(); inp.select();
+        const commit=async()=>{
+          const v=inp.value.trim();
+          if(v && v!==r.name){
+            await db.update(r.id,{name:v});
+            r.name=v; nameEl.textContent=v;
+            toast('Session renamed');
+          }
+          inp.remove(); nameEl.style.display='';
+        };
+        inp.addEventListener('blur',commit);
+        inp.addEventListener('keydown',e=>{ if(e.key==='Enter') commit(); if(e.key==='Escape'){ inp.remove(); nameEl.style.display=''; } });
+      };
+
+      const delBtn=document.createElement('button'); delBtn.className='lib-btn lib-btn-del'; delBtn.textContent='✕ DEL';
+      delBtn.onclick=async()=>{
+        const ok=await showConfirm(`Delete "${r.name}"? This cannot be undone.`);
+        if (!ok) return;
+        await db.delete(r.id);
+        card.remove();
+        toast('Session deleted');
+        refreshLibrary();
+      };
+
+      actions.append(openBtn,renBtn,delBtn);
+      card.appendChild(actions);
+      listEl.appendChild(card);
+    });
+  }
+
+  // ── DEV INFO ──────────────────────────────────────────────
+  function devInfo() {
+    const lines=[
+      `BD-OS v2.077`,
+      `UA: ${navigator.userAgent.slice(0,60)}`,
+      `Platform: ${navigator.platform}`,
+      `Cores: ${navigator.hardwareConcurrency||'?'}`,
+      `Memory: ${navigator.deviceMemory||'?'}GB`,
+      `Screen: ${screen.width}×${screen.height}`,
+      `DPR: ${devicePixelRatio}`,
+      `IDB: ${typeof indexedDB!=='undefined'?'YES':'NO'}`,
+      `SW: ${'serviceWorker' in navigator?'YES':'NO'}`,
+    ];
+    toast(lines[1]+' — '+lines[4]);
+  }
+
+  // ── INIT ──────────────────────────────────────────────────
+  function init() {
+    initClock();
+    initDropZone();
+    refreshHome();
+  }
+
+  return { nav, startUpload, startCapture, stopCapture, openReplay, openCurrentReplay,
+           cancelProcessing, replayTogglePlay, replayToggleMute, replaySetSpeed, devInfo };
+})();
+
+document.addEventListener('DOMContentLoaded', () => app.nav('home'));
+</script>
+</body>
+</html>
